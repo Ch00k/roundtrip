@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Roundtrip</title>
+<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+</head>
+<body>
+    <div class="content">
+        <form method="post">
+            <label for="start_location"><b>Start location</b></label>
+            <label for="longitude">longitude</label>
+            <input id="lon" type="text" name="longitude"
+                   placeholder="lon"
+                   value="{{ request.form['longitude'] }}"></input>
+            <label for="latitude">latitude</label>
+            <input id="lat" type="text" name="latitude"
+                   placeholder="lat"
+                   value="{{ request.form['latitude'] }}"></input>
+
+            <label for="length"><b>Route length</b></label>
+            <input id="length" type="text" name="length"
+                   placeholder="km"
+                   value="{{ request.form['length'] }}"></input>
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+<script>
+    navigator.geolocation.getCurrentPosition((position) => {
+        document.querySelector("#lon").value = position.coords.longitude
+        document.querySelector("#lat").value = position.coords.latitude
+    })
+    document.querySelector("#length").value = 5
+</script>
+</html>
