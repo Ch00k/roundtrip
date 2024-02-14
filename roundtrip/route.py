@@ -13,7 +13,7 @@ ORS_TOKEN = env.str("ORS_TOKEN")
 
 def generate_gpx(
     start_end_location: list[float],
-    length: int,
+    length: float,
     num_points: Optional[int] = None,
     seed: Optional[int] = None,
 ) -> str:
