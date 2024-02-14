@@ -13,10 +13,6 @@ def index():
         length = request.form["length"]
 
         gpx_data = generate_gpx([float(longitude), float(latitude)], int(length) * 1000)
-        return Response(
-            gpx_data,
-            mimetype="application/gpx+xml",
-            headers={"Content-Disposition": f"attachment; filename={longitude}_{latitude}_{length}km.gpx"},
-        )
+        return Response(gpx_data, mimetype="application/gpx+xml")
 
     return render_template("index.html")
