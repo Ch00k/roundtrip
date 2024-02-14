@@ -1,151 +1,76 @@
 <!DOCTYPE html>
 
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
 
-    <title>Roundtrip</title>
+        <title>Roundtrip</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-         crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-         crossorigin=""></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
-<style>
-    body {
-        padding: 0;
-        margin: 0;
-    }
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
+        />
+        <script
+            src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""
+        ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="{{ url_for('static',filename='style.css') }}"
+        />
+    </head>
 
-    html, body, #map, #content {
-        height: 100%;
-        width: 100vw;
-    }
+    <body>
+        <div id="content">
+            <div id="map"></div>
+            <form id="generate" method="post">
+                <label for="start_location"><b>Start location</b></label>
+                <br />
+                <label for="longitude">lon</label>
+                <input
+                    id="lon"
+                    type="text"
+                    name="longitude"
+                    placeholder="lon"
+                    value="{{ request.form['longitude'] }}"
+                />
+                <br />
+                <label for="latitude">lat</label>
+                <input
+                    id="lat"
+                    type="text"
+                    name="latitude"
+                    placeholder="lat"
+                    value="{{ request.form['latitude'] }}"
+                />
 
-    #content {
-        position: relative;
-    }
+                <br />
+                <label for="length"><b>Route length</b></label>
+                <br />
+                <input
+                    id="length"
+                    type="text"
+                    name="length"
+                    placeholder="km"
+                    value="{{ request.form['length'] }}"
+                />
+                <br />
+                <button type="submit">Generate</button>
+                <button id="download" type="button" disabled="true">
+                    Download GPX
+                </button>
+            </form>
+        </div>
+    </body>
 
-    #content > * {
-        position: absolute;
-        z-index: 100000;
-        top: 0;
-        right: 0;
-    }
-
-</style>
-</head>
-
-<body>
-    <div id="content">
-    <div id="map"></div>
-    <form id="generate" method="post">
-        <label for="start_location"><b>Start location</b></label>
-        <br>
-        <label for="longitude">lon</label>
-        <input id="lon" type="text" name="longitude"
-               placeholder="lon"
-               value="{{ request.form['longitude'] }}"></input>
-        <br>
-        <label for="latitude">lat</label>
-        <input id="lat" type="text" name="latitude"
-               placeholder="lat"
-               value="{{ request.form['latitude'] }}"></input>
-
-        <br>
-        <label for="length"><b>Route length</b></label>
-        <br>
-        <input id="length" type="text" name="length"
-               placeholder="km"
-               value="{{ request.form['length'] }}"></input>
-        <br>
-        <button type="submit">Generate</button>
-        <button id="download" type="button" disabled="true">Download GPX</button>
-    </form>
-    </div>
-</body>
-
-<script>
-    function initMap() {
-        let map = L.map('map').fitWorld();
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        map.locate({setView: true, maxZoom: 16});
-        map.on('locationerror', onLocationError);
-        map.on('locationfound', onLocationFound);
-        return map;
-    }
-
-
-    function onLocationFound(e) {
-        L.marker(e.latlng).addTo(map);
-
-        document.querySelector("#lon").value = e.longitude;
-        document.querySelector("#lat").value = e.latitude;
-        document.querySelector("#length").value = 5;
-    }
-
-    function onLocationError(e) {
-        alert(e.message);
-    }
-
-    function drawGPX(map, gpxText) {
-        let gpx = new L.GPX(gpxText, {
-            async: true,
-            marker_options: {
-                startIconUrl: '',
-                endIconUrl: '',
-            }
-        });
-        gpx.on('loaded', function(e) {
-            map.fitBounds(e.target.getBounds());
-        });
-        gpx.addTo(map);
-        return gpx;
-    };
-
-    function downloadGPX(gpxText) {
-        var hiddenElement = document.createElement('a');
-
-        hiddenElement.href = 'data:application/gpx+xml,' + encodeURI(gpxText);
-        hiddenElement.target = '_blank';
-        hiddenElement.download = 'my-route.gpx';
-        hiddenElement.click();
-    };
-
-    let map = initMap();
-    let gpx = null;
-    let gpxText = "";
-
-    document.querySelector('#download').addEventListener('click', () => { downloadGPX(gpxText); });
-
-    document.forms['generate'].addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        if (gpx) {
-            map.removeLayer(gpx);
-        };
-        fetch(event.target.action, {
-            method: 'POST',
-            body: new URLSearchParams(new FormData(event.target))
-        }).then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.text();
-        }).then((body) => {
-            gpxText = body;
-            gpx = drawGPX(map, gpxText);
-            document.querySelector("#download").disabled = false;
-        }).catch((error) => {
-            // TODO handle error
-        });
-    });
-</script>
+    <script src="{{url_for('static', filename='script.js')}}"></script>
 </html>
