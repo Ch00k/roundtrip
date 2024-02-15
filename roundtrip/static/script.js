@@ -1,19 +1,66 @@
 function initMap() {
-    let map = L.map('map').fitWorld();
+    L.ClickHandler = L.Handler.extend({
+        addHooks: function () {
+            L.DomEvent.on(document, 'click', this._captureClick, this);
+        },
+
+        removeHooks: function () {
+            L.DomEvent.off(document, 'click', this._captureClick, this);
+        },
+
+        _captureClick: function (event) {
+            if (event.target.id != 'map') {
+                return;
+            }
+
+            locationControl.stop();
+
+            if (gpx) {
+                map.removeLayer(gpx);
+            }
+
+            locationMarker.removeFrom(map);
+
+            var latlng = map.mouseEventToLatLng(event);
+            locationMarker = L.marker(latlng);
+            locationMarker.addTo(map);
+
+            document.querySelector('#lon').value = latlng.lng;
+            document.querySelector('#lat').value = latlng.lat;
+        },
+    });
+
+    L.Map.addInitHook('addHandler', 'click', L.ClickHandler);
+
+    let map = L.map('map', { click: true }).fitWorld();
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution:
             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
+    locationControl = L.control
+        .locate({ drawMarker: false, drawCircle: false })
+        .addTo(map);
+    locationControl.start();
+    //locationControl.stopFollowing();
 
-    map.locate({ setView: true, maxZoom: 16 });
+    //map.locate({ setView: true, maxZoom: 16 });
     map.on('locationerror', onLocationError);
     map.on('locationfound', onLocationFound);
+
     return map;
 }
 
 function onLocationFound(e) {
-    L.marker(e.latlng).addTo(map);
+    if (locationMarker) {
+        locationMarker.removeFrom(map);
+    }
+    if (gpx) {
+        map.removeLayer(gpx);
+    }
+
+    locationMarker = L.marker(e.latlng);
+    locationMarker.addTo(map);
 
     document.querySelector('#lon').value = e.longitude;
     document.querySelector('#lat').value = e.latitude;
@@ -21,7 +68,7 @@ function onLocationFound(e) {
 }
 
 function onLocationError(e) {
-    alert(e.message);
+    console.log(e);
 }
 
 function drawGPX(map, gpxText) {
@@ -48,6 +95,8 @@ function downloadGPX(gpxText) {
     hiddenElement.click();
 }
 
+let locationMarker = null;
+let locationControl = null;
 let map = initMap();
 let gpx = null;
 let gpxText = '';
@@ -79,6 +128,5 @@ document.forms['generate'].addEventListener('submit', (event) => {
         })
         .catch((error) => {
             console.log(error);
-            // TODO handle error
         });
 });
