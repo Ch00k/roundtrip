@@ -1,11 +1,11 @@
 function initMap() {
     L.ClickHandler = L.Handler.extend({
         addHooks: function () {
-            L.DomEvent.on(document, 'click', this._captureClick, this);
+            L.DomEvent.on(document, 'dblclick', this._captureClick, this);
         },
 
         removeHooks: function () {
-            L.DomEvent.off(document, 'click', this._captureClick, this);
+            L.DomEvent.off(document, 'dblclick', this._captureClick, this);
         },
 
         _captureClick: function (event) {
@@ -64,7 +64,6 @@ function onLocationFound(e) {
 
     document.querySelector('#lon').value = e.longitude;
     document.querySelector('#lat').value = e.latitude;
-    document.querySelector('#length').value = 5;
 }
 
 function onLocationError(e) {
@@ -100,6 +99,8 @@ let locationControl = null;
 let map = initMap();
 let gpx = null;
 let gpxText = '';
+
+document.querySelector('#length').value = 3;
 
 document.querySelector('#download').addEventListener('click', () => {
     downloadGPX(gpxText);
