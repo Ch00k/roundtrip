@@ -48,6 +48,12 @@ function initMap() {
     map.on('locationerror', onLocationError);
     map.on('locationfound', onLocationFound);
 
+    L.control
+        .sidepanel('sidepanel', {
+            panelPosition: 'right',
+        })
+        .addTo(map);
+
     return map;
 }
 

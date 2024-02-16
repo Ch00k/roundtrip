@@ -10,14 +10,3 @@ body,
     height: 100%;
     width: 100vw;
 }
-
-#content {
-    position: relative;
-}
-
-#content > * {
-    position: absolute;
-    z-index: 100000;
-    top: 0;
-    right: 0;
-}
