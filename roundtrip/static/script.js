@@ -32,12 +32,16 @@ function initMap() {
 
     L.Map.addInitHook('addHandler', 'click', L.ClickHandler);
 
-    let map = L.map('map', { click: true }).fitWorld();
+    let map = L.map('map', {
+        click: true,
+        closePopupOnClick: false,
+    }).fitWorld();
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution:
             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
+    map.doubleClickZoom.disable();
     locationControl = L.control
         .locate({ drawMarker: false, drawCircle: false })
         .addTo(map);
@@ -76,7 +80,13 @@ function drawPopup() {
     div.appendChild(generateButton);
     div.appendChild(downloadButton);
 
-    locationMarker.bindPopup(div).openPopup();
+    locationMarker
+        .bindPopup(div, {
+            closeButton: false,
+            autoClose: false,
+            closeOnEscapeKey: false,
+        })
+        .openPopup();
 }
 
 function onLocationFound(e) {
