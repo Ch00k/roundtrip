@@ -42,7 +42,6 @@ function initMap() {
         .locate({ drawMarker: false, drawCircle: false })
         .addTo(map);
     locationControl.start();
-    //locationControl.stopFollowing();
 
     map.on('locationerror', onLocationError);
     map.on('locationfound', onLocationFound);
@@ -80,6 +79,8 @@ function drawPopup() {
 }
 
 function onLocationFound(e) {
+    locationControl.stopFollowing();
+
     lon = e.longitude;
     lat = e.latitude;
     console.log(lat, lon);
