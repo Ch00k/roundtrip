@@ -22,11 +22,11 @@ function initMap() {
             locationMarker.removeFrom(map);
 
             var latlng = map.mouseEventToLatLng(event);
+            lon = latlng.lng;
+            lat = latlng.lat;
             locationMarker = L.marker(latlng);
             locationMarker.addTo(map);
-
-            document.querySelector('#lon').value = latlng.lng;
-            document.querySelector('#lat').value = latlng.lat;
+            drawPopup();
         },
     });
 
@@ -44,20 +44,46 @@ function initMap() {
     locationControl.start();
     //locationControl.stopFollowing();
 
-    //map.locate({ setView: true, maxZoom: 16 });
     map.on('locationerror', onLocationError);
     map.on('locationfound', onLocationFound);
-
-    L.control
-        .sidepanel('sidepanel', {
-            panelPosition: 'right',
-        })
-        .addTo(map);
 
     return map;
 }
 
+function drawPopup() {
+    let div = document.createElement('div');
+
+    let input = document.createElement('input');
+    input.id = 'length';
+    input.type = 'number';
+    input.min = 1;
+    input.max = 100;
+    div.appendChild(input);
+
+    let generateButton = document.createElement('button');
+    generateButton.innerHTML = 'Generate';
+    generateButton.onclick = generateGPX;
+
+    let downloadButton = document.createElement('button');
+    downloadButton.id = 'download';
+    downloadButton.innerHTML = 'Download';
+    downloadButton.disabled = true;
+    downloadButton.onclick = downloadGPX;
+
+    div.append(' km');
+    div.appendChild(document.createElement('br'));
+
+    div.appendChild(generateButton);
+    div.appendChild(downloadButton);
+
+    locationMarker.bindPopup(div).openPopup();
+}
+
 function onLocationFound(e) {
+    lon = e.longitude;
+    lat = e.latitude;
+    console.log(lat, lon);
+
     if (locationMarker) {
         locationMarker.removeFrom(map);
     }
@@ -68,8 +94,7 @@ function onLocationFound(e) {
     locationMarker = L.marker(e.latlng);
     locationMarker.addTo(map);
 
-    document.querySelector('#lon').value = e.longitude;
-    document.querySelector('#lat').value = e.latitude;
+    drawPopup();
 }
 
 function onLocationError(e) {
@@ -77,7 +102,11 @@ function onLocationError(e) {
 }
 
 function drawGPX(map, gpxText) {
-    let gpx = new L.GPX(gpxText, {
+    if (gpx) {
+        map.removeLayer(gpx);
+    }
+
+    gpx = new L.GPX(gpxText, {
         async: true,
         marker_options: {
             startIconUrl: '',
@@ -88,7 +117,29 @@ function drawGPX(map, gpxText) {
         map.fitBounds(e.target.getBounds());
     });
     gpx.addTo(map);
-    return gpx;
+}
+
+function generateGPX() {
+    let formData = new FormData();
+    formData.append('longitude', lon);
+    formData.append('latitude', lat);
+    formData.append('length', document.querySelector('#length').value);
+
+    fetch('/', {
+        method: 'POST',
+        body: formData,
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then((body) => {
+            gpxText = body;
+            drawGPX(map, gpxText);
+            document.querySelector('#download').disabled = false;
+        });
 }
 
 function downloadGPX(gpxText) {
@@ -102,38 +153,8 @@ function downloadGPX(gpxText) {
 
 let locationMarker = null;
 let locationControl = null;
+let lon = null;
+let lat = null;
 let map = initMap();
 let gpx = null;
 let gpxText = '';
-
-document.querySelector('#length').value = 3;
-
-document.querySelector('#download').addEventListener('click', () => {
-    downloadGPX(gpxText);
-});
-
-document.forms['generate'].addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    if (gpx) {
-        map.removeLayer(gpx);
-    }
-    fetch(event.target.action, {
-        method: 'POST',
-        body: new URLSearchParams(new FormData(event.target)),
-    })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.text();
-        })
-        .then((body) => {
-            gpxText = body;
-            gpx = drawGPX(map, gpxText);
-            document.querySelector('#download').disabled = false;
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-});

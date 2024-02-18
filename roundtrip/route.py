@@ -25,6 +25,7 @@ def generate_gpx(
 
     data = {
         "coordinates": [start_end_location],
+        "continue_straight": True,
         "options": {"round_trip": {"length": length, "points": num_points, "seed": seed}},
     }
 

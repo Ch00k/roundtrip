@@ -26,10 +26,6 @@
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css"
         />
-        <link
-            rel="stylesheet"
-            href="{{ url_for('static',filename='leaflet-sidepanel.css') }}"
-        />
 
         <!--JS-->
         <script
@@ -42,62 +38,11 @@
             charset="utf-8"
         ></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
-        <script src="{{url_for('static', filename='leaflet-sidepanel.min.js')}}"></script>
     </head>
 
     <body>
         <div id="content">
-            <div id="map" class="sidebar-map">
-                <div
-                    id="sidepanel"
-                    class="sidepanel"
-                    aria-label="side panel"
-                    aria-hidden="false"
-                >
-                    <div class="sidepanel-inner-wrapper">
-                        <div class="sidepanel-content">
-                            <form id="generate" method="post">
-                                <input
-                                    id="lon"
-                                    type="hidden"
-                                    name="longitude"
-                                    value="{{ request.form['longitude'] }}"
-                                />
-                                <input
-                                    id="lat"
-                                    type="hidden"
-                                    name="latitude"
-                                    value="{{ request.form['latitude'] }}"
-                                />
-                                <label for="length"><b>Route length</b></label>
-                                <br />
-                                <input
-                                    id="length"
-                                    type="text"
-                                    name="length"
-                                    value="{{ request.form['length'] }}"
-                                />
-                                <br />
-                                <button type="submit">Generate</button>
-                                <button
-                                    id="download"
-                                    type="button"
-                                    disabled="true"
-                                >
-                                    Download GPX
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="sidepanel-toggle-container">
-                        <button
-                            class="sidepanel-toggle-button"
-                            type="button"
-                            aria-label="toggle side panel"
-                        ></button>
-                    </div>
-                </div>
-            </div>
+            <div id="map"></div>
         </div>
     </body>
 
