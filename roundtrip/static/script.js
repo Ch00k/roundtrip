@@ -60,12 +60,13 @@ function drawPopup() {
     div.appendChild(input);
 
     let generateButton = document.createElement('button');
-    generateButton.innerHTML = 'Generate';
+    generateButton.id = 'generate';
+    //generateButton.innerHTML = 'Generate';
     generateButton.onclick = generateGPX;
 
     let downloadButton = document.createElement('button');
     downloadButton.id = 'download';
-    downloadButton.innerHTML = 'Download';
+    //downloadButton.innerHTML = 'Download';
     downloadButton.disabled = true;
     downloadButton.onclick = downloadGPX;
 

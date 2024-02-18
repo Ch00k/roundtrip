@@ -10,3 +10,27 @@ body,
     height: 100%;
     width: 100vw;
 }
+
+#generate {
+    background-image: url('images/route-solid.svg');
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    border: none;
+    cursor: pointer;
+    height: 20px;
+    padding-left: 20px;
+    vertical-align: middle;
+}
+
+#download {
+    background-image: url('images/file-arrow-down-solid.svg');
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    border: none;
+    cursor: pointer;
+    height: 20px;
+    padding-left: 20px;
+    vertical-align: middle;
+}
